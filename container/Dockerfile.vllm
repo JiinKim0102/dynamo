@@ -384,10 +384,17 @@ COPY launch /workspace/launch
 COPY deploy/sdk /workspace/deploy/sdk
 
 RUN cargo build \
-	--release \
-	--locked \
-	--features dynamo-llm/block-manager \
-	--workspace
+        --release \
+        --locked \
+        --features dynamo-llm/block-manager \
+        --workspace
+
+# Create symlinks for wheel building
+RUN mkdir -p /workspace/deploy/sdk/src/dynamo/sdk/cli/bin/ && \
+    rm -f /workspace/deploy/sdk/src/dynamo/sdk/cli/bin/* && \
+    ln -sf /workspace/target/release/dynamo-run /workspace/deploy/sdk/src/dynamo/sdk/cli/bin/dynamo-run && \
+    ln -sf /workspace/target/release/http /workspace/deploy/sdk/src/dynamo/sdk/cli/bin/http && \
+    ln -sf /workspace/target/release/llmctl /workspace/deploy/sdk/src/dynamo/sdk/cli/bin/llmctl
 
 # Build dynamo wheel
 RUN uv build --wheel --out-dir /workspace/dist && \
